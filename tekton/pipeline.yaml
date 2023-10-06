@@ -1,7 +1,7 @@
 #
 # This pipeline needs the following tasks from Tekton Hub
-#   - git-clone
-#   - flake8
+#   - git-clone (Install it by [tkn hub install task git-clone] command)
+#   - flake8 (Install it by [tkn hub install task flake8] command)
 #
 ---
 apiVersion: tekton.dev/v1beta1
@@ -36,3 +36,17 @@ spec:
         value: $(params.branch)
       runAfter:
         - init
+
+    - name: lint
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace          
+      taskRef:
+        name: flake8
+      params:
+      - name: image
+        value: "python:3.9-slim"
+      - name: args
+        value: ["--count","--max-complexity=10","--max-line-length=127","--statistics"]
+      runAfter:
+        - clone
